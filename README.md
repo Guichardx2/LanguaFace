@@ -29,7 +29,7 @@ Link de instalação: [OBS install](https://obsproject.com/pt-br/download)
 
 ## Uso
 
-**Para utilizar o projeto, após ter seguido os passoa acima:**
+**Para utilizar o projeto, após ter seguido os passos acima:**
 
 1. Escolha a linguagem que deseja falar e a que deseja ver a legenda.
 

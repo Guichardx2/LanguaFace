@@ -1,13 +1,14 @@
 import cv2 
-import threading
 import textwrap
+import threading
+# import pytesseract
+import numpy as np
 import pyvirtualcam
 from PIL import ImageFont, ImageDraw, Image
-import numpy as np
-
 from speech import voice
 from showErrors import showErrorVideo
 
+# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR'
 recognized_text = ""
 running = True  # Variável global para controlar o loop
 
@@ -20,7 +21,7 @@ def startCaptureVideo(langIn, langOut, videoIndex, audioIndex):
             recognized_text = voice(langIn, langOut, audioIndex)
   
     def capture_video():
-        global running
+        global running, recognized_text
 
         # Crie a janela
         cv2.namedWindow('Video', cv2.WINDOW_NORMAL)
@@ -28,25 +29,22 @@ def startCaptureVideo(langIn, langOut, videoIndex, audioIndex):
 
         # Faça a janela aparecer em cima de todas as outras
         cv2.setWindowProperty('Video', cv2.WND_PROP_TOPMOST, 1)
-
         vid = cv2.VideoCapture(videoIndex) 
-        font = langOut == 'zh-cn' and ImageFont.truetype("C:\Windows\Fonts\simsun.ttc", 35) or ImageFont.truetype("c:\WINDOWS\Fonts\ARIAL.TTF", 35)
+        font = langOut == 'zh' and ImageFont.truetype("C:\Windows\Fonts\simsun.ttc", 35) or ImageFont.truetype("c:\WINDOWS\Fonts\ARIAL.TTF", 35)
         color = "yellow"
         thickness = 2            
-
         with pyvirtualcam.Camera(width=640, height=480, fps=30) as cam:
             while running: 
                 ret, frame = vid.read() 
+                if not ret: 
+                    break
 
                 if frame is None:
                     vid.release()
                     cv2.destroyAllWindows()
-                    
                     showErrorVideo()
-                    
                     running = False
-
-                    break
+                    continue
 
                 # Obtenha a largura do quadro
                 frame_width = frame.shape[1]
@@ -89,9 +87,8 @@ def startCaptureVideo(langIn, langOut, videoIndex, audioIndex):
 
                 # Envia o frame para a câmera virtual
                 cam.send(frame_rgb)
-
                 cam.sleep_until_next_frame()
-
+                
                 # Exibe o frame no preview
                 cv2.imshow('Video', frame_bgr)
                 if cv2.waitKey(1) == 27 or cv2.getWindowProperty('Video', cv2.WND_PROP_VISIBLE) < 1: 
